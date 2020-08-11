@@ -1,0 +1,4 @@
+include ':library:mqtt-exporter'
+include ':library:base'
+include ':sample'
+rootProject.name = "Configurable IoT Library"
