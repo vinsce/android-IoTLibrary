@@ -9,6 +9,9 @@ import androidx.annotation.NonNull;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Setter;
+import me.vinsce.ciotl.helpers.id.DeviceIdProvider;
+import me.vinsce.ciotl.helpers.id.GeneratedUUIDProvider;
 import me.vinsce.ciotl.model.samples.Sample;
 import me.vinsce.ciotl.model.sensors.Data;
 
@@ -34,10 +37,14 @@ public abstract class AbstractCollector<S extends Sample<T>, T extends Data> imp
         SHARED_HANDLER = new Handler(handlerThread.getLooper());
     }
 
-    protected Context context;
+    protected final Context context;
+
+    @Setter
+    protected DeviceIdProvider deviceIdProvider;
 
     public AbstractCollector(@NonNull Context context) {
         this.context = context;
+        deviceIdProvider = new GeneratedUUIDProvider(context);
     }
 
     @Override

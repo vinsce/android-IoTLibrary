@@ -2,6 +2,8 @@ package me.vinsce.ciotl.exporters;
 
 import androidx.annotation.NonNull;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.vinsce.ciotl.encoders.Encoder;
 import me.vinsce.ciotl.exceptions.InitializationException;
 import me.vinsce.ciotl.exceptions.NotInitializedException;
@@ -19,6 +21,10 @@ public abstract class AbstractExporter<I> implements Exporter {
     protected Encoder<I> encoder;
     protected boolean initialized = false;
 
+    @Getter
+    @Setter
+    protected boolean useGenericSamples = false;
+
     /**
      * Create a new Exporter with the specified Encoder
      *
@@ -34,7 +40,10 @@ public abstract class AbstractExporter<I> implements Exporter {
             throw new NotInitializedException("Exporter not initialized");
         if (encoder == null)
             throw new NotInitializedException("Encoder not configured for Exporter");
-        exportEncoded(encoder.encode(sample));
+        if (useGenericSamples)
+            exportEncoded(encoder.encode(sample.toGenericSample()));
+        else
+            exportEncoded(encoder.encode(sample));
     }
 
     public abstract void exportEncoded(I encodedSample);

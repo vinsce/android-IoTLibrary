@@ -88,7 +88,7 @@ public class GpsCollector extends AbstractCollector<GpsSample, GpsData> {
                     float speed = location.getSpeed();
 
                     final GpsData data = new GpsData(latitude, longitude, altitude, bearing, speed);
-                    final GpsSample sample = new GpsSample(data);
+                    final GpsSample sample = new GpsSample(data, deviceIdProvider.getDeviceId());
 
                     notifyListeners(sample);
                 }

@@ -10,11 +10,13 @@ import me.vinsce.ciotl.model.sensors.GpsData;
  * @since 1.0.0
  */
 public class GpsSample extends Sample<GpsData> {
-    public GpsSample(Timestamp timestamp, GpsData data) {
-        super(timestamp, data);
+    private static final String TYPE = "accelerometer";
+
+    public GpsSample(Timestamp timestamp, GpsData data, String device) {
+        super(timestamp, data, device, TYPE);
     }
 
-    public GpsSample(GpsData data) {
-        super(data);
+    public GpsSample(GpsData data, String device) {
+        super(data, device, TYPE);
     }
 }

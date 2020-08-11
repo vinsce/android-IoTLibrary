@@ -2,7 +2,11 @@ package me.vinsce.ciotl.model.sensors;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Getter;
+import me.vinsce.ciotl.model.sensors.GenericData.GenericDataItem;
 
 /**
  * Gps Data contains: latitude, longitude, altitude, bearing and speed
@@ -35,5 +39,16 @@ public class GpsData extends Data {
                 "bearing=" + bearing + "," +
                 "speed=" + speed
                 + " }";
+    }
+
+    @Override
+    public GenericData toGenericData() {
+        List<GenericDataItem> items = new ArrayList<>();
+        items.add(new GenericDataItem("latitude", latitude));
+        items.add(new GenericDataItem("longitude", longitude));
+        items.add(new GenericDataItem("altitude", altitude));
+        items.add(new GenericDataItem("bearing", bearing));
+        items.add(new GenericDataItem("speed", speed));
+        return new GenericData(items);
     }
 }

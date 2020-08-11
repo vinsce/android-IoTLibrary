@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         pipeline.addCollector(accelerometerDataCollector);
         pipeline.addExporter(new LogExporter(new JsonEncoder()));
         // pipeline.addExporter(new MqttExporter(new JsonByteEncoder(), this, "tcp://192.168.0.104:1883", "test_client_1", "test_client"));
-        pipeline.addExporter(new AbstractExporter<String>(new JsonEncoder()) {
+        AbstractExporter<String> logViewExporter = new AbstractExporter<String>(new JsonEncoder()) {
             @Override
             public void close() {}
 
@@ -50,7 +50,9 @@ public class MainActivity extends AppCompatActivity {
             public void exportEncoded(String encodedSample) {
                 runOnUiThread(() -> logView.setText(String.format("%s\n\n%s", encodedSample, logView.getText())));
             }
-        });
+        };
+        logViewExporter.setUseGenericSamples(true);
+        pipeline.addExporter(logViewExporter);
         return pipeline;
     }
 }

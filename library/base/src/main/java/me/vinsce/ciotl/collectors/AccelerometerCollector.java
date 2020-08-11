@@ -55,6 +55,6 @@ public class AccelerometerCollector extends AndroidSensorAbstractCollector<Accel
     @Override
     protected AccelerometerSample processEvent(SensorEvent event) {
         AccelerometerData data = new AccelerometerData(event.values[0], event.values[1], event.values[2]);
-        return new AccelerometerSample(data);
+        return new AccelerometerSample(data, deviceIdProvider.getDeviceId());
     }
 }

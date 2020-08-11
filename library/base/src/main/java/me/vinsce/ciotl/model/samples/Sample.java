@@ -18,14 +18,16 @@ import me.vinsce.ciotl.model.sensors.Data;
 public abstract class Sample<T extends Data> {
     private Timestamp timestamp;
     private final T data;
+    private final String device;
+    private final String type;
 
     /**
      * Create a new Sample with the current timestamp and the specified data
      *
      * @param data measured data
      */
-    public Sample(T data) {
-        this(new Timestamp(System.currentTimeMillis()), data);
+    public Sample(T data, String device, String type) {
+        this(new Timestamp(System.currentTimeMillis()), data, device, type);
     }
 
     /**
@@ -34,14 +36,25 @@ public abstract class Sample<T extends Data> {
      * @param timestamp timestamp of measure
      * @param data      measured data
      */
-    public Sample(Timestamp timestamp, T data) {
+    public Sample(Timestamp timestamp, T data, String device, String type) {
         this.timestamp = timestamp;
         this.data = data;
+        this.device = device;
+        this.type = type;
+    }
+
+    /**
+     * Create a generic sample from the current instance
+     *
+     * @return a GenericSample with the same information of the current sample
+     */
+    public GenericSample toGenericSample() {
+        return new GenericSample(this);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + timestamp + "] = " + data;
+        return device + "." + type + "[" + timestamp + "] = " + data;
     }
 }

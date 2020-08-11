@@ -10,11 +10,13 @@ import me.vinsce.ciotl.model.sensors.AccelerometerData;
  * @since 1.0.0
  */
 public class AccelerometerSample extends Sample<AccelerometerData> {
-    public AccelerometerSample(Timestamp timestamp, AccelerometerData data) {
-        super(timestamp, data);
+    private static final String TYPE = "accelerometer";
+
+    public AccelerometerSample(Timestamp timestamp, AccelerometerData data, String device) {
+        super(timestamp, data, device, TYPE);
     }
 
-    public AccelerometerSample(AccelerometerData data) {
-        super(data);
+    public AccelerometerSample(AccelerometerData data, String device) {
+        super(data, device, TYPE);
     }
 }
