@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import me.vinsce.ciotl.Pipeline;
 import me.vinsce.ciotl.collectors.AccelerometerCollector;
+import me.vinsce.ciotl.collectors.BatteryCollector;
+import me.vinsce.ciotl.collectors.LightCollector;
 import me.vinsce.ciotl.encoders.JsonEncoder;
 import me.vinsce.ciotl.exporters.AbstractExporter;
 import me.vinsce.ciotl.exporters.LogExporter;
@@ -40,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
         Pipeline pipeline = new Pipeline();
         pipeline.addCollector(accelerometerDataCollector);
+        pipeline.addCollector(new LightCollector(this, 5000));
+        pipeline.addCollector(new BatteryCollector(this));
         pipeline.addExporter(new LogExporter(new JsonEncoder()));
         // pipeline.addExporter(new MqttExporter(new JsonByteEncoder(), this, "tcp://192.168.0.104:1883", "test_client_1", "test_client"));
         AbstractExporter<String> logViewExporter = new AbstractExporter<String>(new JsonEncoder()) {
@@ -48,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void exportEncoded(String encodedSample) {
-                runOnUiThread(() -> logView.setText(String.format("%s\n\n%s", encodedSample, logView.getText())));
+                runOnUiThread(() -> logView.setText(String.format("%s%s\n\n", logView.getText(), encodedSample)));
             }
         };
-        logViewExporter.setUseGenericSamples(true);
+        logViewExporter.setUseGenericSamples(false);
         pipeline.addExporter(logViewExporter);
         return pipeline;
     }

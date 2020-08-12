@@ -5,9 +5,6 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
-import java.sql.Time;
-import java.sql.Timestamp;
-
 import me.vinsce.ciotl.model.samples.AccelerometerSample;
 import me.vinsce.ciotl.model.sensors.AccelerometerData;
 
