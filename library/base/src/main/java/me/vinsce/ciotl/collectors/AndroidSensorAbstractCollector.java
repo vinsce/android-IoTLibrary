@@ -84,7 +84,8 @@ public abstract class AndroidSensorAbstractCollector<S extends Sample<T>, T exte
 
     @Override
     public void stop() {
-        sensorManager.unregisterListener(this);
+        if (sensorManager != null)
+            sensorManager.unregisterListener(this);
     }
 
 

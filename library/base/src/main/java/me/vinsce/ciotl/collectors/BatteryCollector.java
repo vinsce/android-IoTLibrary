@@ -24,6 +24,8 @@ public class BatteryCollector extends AbstractCollector<BatterySample, BatteryDa
 
     private IntentFilter batteryIntentFilter;
 
+    private boolean stopped = false;
+
     public BatteryCollector(@NonNull Context context) {
         this(context, 5000);
     }
@@ -56,9 +58,12 @@ public class BatteryCollector extends AbstractCollector<BatterySample, BatteryDa
             initialize();
         Log.i(LOG_TAG, "Starting battery collector");
         SHARED_HANDLER.post(this::getBatteryData);
+        stopped = false;
     }
 
     private void getBatteryData() {
+        if (stopped)
+            return;
         Log.d(LOG_TAG, "Getting battery data");
         final Intent batteryStatus = context.registerReceiver(null, batteryIntentFilter);
         if (batteryStatus != null && batteryStatus.getExtras() != null) {
@@ -96,6 +101,7 @@ public class BatteryCollector extends AbstractCollector<BatterySample, BatteryDa
     @Override
     public void stop() {
         SHARED_HANDLER.removeCallbacks(this::getBatteryData);
+        stopped = true;
         Log.i(LOG_TAG, "Stopping Battery Collector");
     }
 

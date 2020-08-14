@@ -129,7 +129,8 @@ public class GpsCollector extends AbstractCollector<GpsSample, GpsData> {
     public void stop() {
         Log.i(LOG_TAG, "Removing location updates");
         try {
-            locationProvider.removeLocationUpdates(locationCallback);
+            if (locationProvider != null)
+                locationProvider.removeLocationUpdates(locationCallback);
         } catch (SecurityException unlikely) {
             Log.e(LOG_TAG, "Unable to remove location updates. " + unlikely);
         }

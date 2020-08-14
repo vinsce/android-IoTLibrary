@@ -58,6 +58,27 @@ pipeline.stop();
 ```
 
 ### Standard vs Generic samples
+The (standard) schema of the samples collected from the different collectors is different (check for example [BatteryData](library/base/src/main/java/me/vinsce/ciotl/model/sensors/BatteryData.java) and [GpsData](library/base/src/main/java/me/vinsce/ciotl/model/sensors/GpsData.java)).
+To simplify the job to the receivers it might help to have a common schema for all the collected samples. This is the goal of the [GenericSample](library/base/src/main/java/me/vinsce/ciotl/model/samples/GenericSample.java) and [GenericData](library/base/src/main/java/me/vinsce/ciotl/model/sensors/GenericData.java) classes.
+
+```json
+{
+  "data": {
+    "values": [
+      { "name": "METRIC_NAME_1", "value": value1 },
+      // ...
+      { "name": "METRIC_NAME_N", "value": valueN }
+    ]
+  },
+  "device": "DEVICE_ID",
+  "timestamp": "yyyy-MM-dd'T'HH:mm:ss.S",
+  "type": "PACKET_TYPE"
+}
+```
+
+All the built-in exporters have a `setUseGenericSamples(boolean)` method (provided by the [AbstractExporter](library/base/src/main/java/me/vinsce/ciotl/exporters/AbstractExporter.java) class). If set to true, all the samples are converted to the generic schema before export.
+
+![Sample project log view](imgs/sample_project_logview.png)
 
 ### Extending the library
 #### Custom collector
@@ -69,3 +90,6 @@ TODO
  
 ## Using the library in your project
 This library is not yet published
+
+## Note
+This library is not ready for production use and does not care about permissions or sensors availability. The application that uses the library must take care of it.
