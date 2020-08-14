@@ -1,62 +1,67 @@
 package me.vinsce.ciotl.sample;
 
+import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import me.vinsce.ciotl.Pipeline;
-import me.vinsce.ciotl.collectors.AccelerometerCollector;
-import me.vinsce.ciotl.collectors.BatteryCollector;
-import me.vinsce.ciotl.collectors.LightCollector;
 import me.vinsce.ciotl.encoders.JsonEncoder;
 import me.vinsce.ciotl.exporters.AbstractExporter;
-import me.vinsce.ciotl.exporters.LogExporter;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private TextView logView;
-    private Pipeline testPipeline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         logView = findViewById(R.id.log);
+    }
 
-        // Create a test pipeline
-        testPipeline = createTestPipeline();
-
-        // Start the pipeline
-        testPipeline.start();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        bindService(new Intent(this, SampleService.class), connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
+        stopService(new Intent(this, SampleService.class));
         super.onStop();
-        testPipeline.stop();
     }
 
-    private Pipeline createTestPipeline() {
-        AccelerometerCollector accelerometerDataCollector = new AccelerometerCollector(this, 1000);
-        // GpsCollector gpsDataCollector = new GpsCollector(this);
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(LOG_TAG, "Service connected");
 
-        Pipeline pipeline = new Pipeline();
-        pipeline.addCollector(accelerometerDataCollector);
-        pipeline.addCollector(new LightCollector(this, 5000));
-        pipeline.addCollector(new BatteryCollector(this));
-        pipeline.addExporter(new LogExporter(new JsonEncoder()));
-        // pipeline.addExporter(new MqttExporter(new JsonByteEncoder(), this, "tcp://192.168.0.104:1883", "test_client_1", "test_client"));
-        AbstractExporter<String> logViewExporter = new AbstractExporter<String>(new JsonEncoder()) {
-            @Override
-            public void close() {}
+            SampleService.SampleServiceBinder binder = (SampleService.SampleServiceBinder) service;
 
-            @Override
-            public void exportEncoded(String encodedSample) {
-                runOnUiThread(() -> logView.setText(String.format("%s%s\n\n", logView.getText(), encodedSample)));
-            }
-        };
-        logViewExporter.setUseGenericSamples(false);
-        pipeline.addExporter(logViewExporter);
-        return pipeline;
-    }
+            AbstractExporter<String> logViewExporter = new AbstractExporter<String>(new JsonEncoder()) {
+                @Override
+                public void close() {}
+
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void exportEncoded(String encodedSample) {
+                    runOnUiThread(() -> logView.setText(logView.getText() + encodedSample + "\n\n"));
+                }
+            };
+            logViewExporter.initialize(); // explicit call to initialize because it is added when the pipeline is already started
+            binder.getPipeline().addExporters(logViewExporter);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.d(LOG_TAG, "Service disconnected");
+        }
+    };
 }
