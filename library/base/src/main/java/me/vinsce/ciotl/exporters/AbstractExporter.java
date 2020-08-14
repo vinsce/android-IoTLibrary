@@ -14,7 +14,7 @@ import me.vinsce.ciotl.model.sensors.Data;
  * Base abstract implementation of Exporter that takes care of encoding
  * and demands the export of the encoded value to the subclass
  *
- * @param <I> type of encoded value, ready to be exporter
+ * @param <I> type of encoded value, ready to be exported
  * @since 1.0.0
  */
 public abstract class AbstractExporter<I> implements Exporter {

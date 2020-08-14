@@ -4,8 +4,8 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import me.vinsce.ciotl.collectors.Collector;
 import me.vinsce.ciotl.exporters.Exporter;
@@ -19,8 +19,8 @@ public class Pipeline {
     private final Set<Exporter> exporters;
 
     public Pipeline() {
-        this.collectors = new HashSet<>();
-        this.exporters = new HashSet<>();
+        this.collectors = ConcurrentHashMap.newKeySet();
+        this.exporters = ConcurrentHashMap.newKeySet();
     }
 
     public void addCollector(Collector collector) {

@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 import lombok.Setter;
@@ -34,10 +35,30 @@ public class SocketExporter extends AbstractExporter<byte[]> {
     private Socket socket;
     private OutputStream outputStream;
 
+    /**
+     * Create a new SocketExporter in Client mode
+     *
+     * @param encoder encoder used to encode samples before export
+     * @param host    server host
+     * @param port    server port
+     */
     public SocketExporter(Encoder<byte[]> encoder, String host, int port) {
         super(encoder);
         this.port = port;
         this.host = host;
+    }
+
+    /**
+     * Create a new SocketExporter in Server mode.
+     * Note: the initialization blocks until a client is connected and only one client is supported.
+     *
+     * @param encoder encoder used to encode samples before export
+     * @param port    port to bind to
+     */
+    public SocketExporter(Encoder<byte[]> encoder, int port) {
+        super(encoder);
+        this.port = port;
+        this.host = null;
     }
 
     @Override
@@ -60,9 +81,22 @@ public class SocketExporter extends AbstractExporter<byte[]> {
     @Override
     public void initialize() {
         Log.i(LOG_TAG, "Initializing SocketExporter");
-        socket = new Socket();
         try {
-            socket.connect(new InetSocketAddress(host, port), timeout);
+            if (host == null) {
+                Log.d(LOG_TAG, "Starting SocketExporter in server mode");
+
+                // server mode
+                final ServerSocket ss = new ServerSocket(port);
+                Log.d(LOG_TAG, "Awaiting client connection to " + ss.getLocalSocketAddress());
+
+                socket = ss.accept();
+                Log.d(LOG_TAG, "Client connected from " + socket.getInetAddress().getHostAddress());
+            } else {
+                Log.d(LOG_TAG, "Starting SocketExporter in client mode");
+                // client mode
+                socket = new Socket();
+                socket.connect(new InetSocketAddress(host, port), timeout);
+            }
             outputStream = socket.getOutputStream();
         } catch (Exception e) {
             throw new InitializationException("Failed to initialize SocketExporter", e);
@@ -82,12 +116,12 @@ public class SocketExporter extends AbstractExporter<byte[]> {
         try {
             outputStream.close();
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error while closing resources", e);
+            Log.e(LOG_TAG, "Error while closing output stream", e);
         }
         try {
             socket.close();
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error while closing resources", e);
+            Log.e(LOG_TAG, "Error while closing socket", e);
         }
         socket = null;
         outputStream = null;
