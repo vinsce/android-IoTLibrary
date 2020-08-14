@@ -65,9 +65,8 @@ To simplify the job to the receivers it might help to have a common schema for a
 {
   "data": {
     "values": [
-      { "name": "METRIC_NAME_1", "value": value1 },
-      // ...
-      { "name": "METRIC_NAME_N", "value": valueN }
+      { "name": "METRIC_NAME_1", "value": "X"},
+      { "name": "METRIC_NAME_N", "value": 0.0}
     ]
   },
   "device": "DEVICE_ID",
@@ -78,7 +77,7 @@ To simplify the job to the receivers it might help to have a common schema for a
 
 All the built-in exporters have a `setUseGenericSamples(boolean)` method (provided by the [AbstractExporter](library/base/src/main/java/me/vinsce/ciotl/exporters/AbstractExporter.java) class). If set to true, all the samples are converted to the generic schema before export.
 
-![Sample project log view](imgs/sample_project_logview.png)
+<img src="imgs/sample_project_logview.png" width=300>
 
 ### Extending the library
 #### Custom collector
@@ -89,7 +88,27 @@ TODO
 TODO
  
 ## Using the library in your project
-This library is not yet published
+This library is currently published in Github Package Registry.
+To use it in you Android project, in your `build.gradle`:
+
+1. Add GPR repository with your GitHub credentials
+```groovy
+repositories {
+    maven {
+        url uri("https://maven.pkg.github.com/vinsce/android-IoTLibrary")
+        credentials {
+            username = "GITHUB_USERNAME"
+            password = "GITHUB_TOKEN"
+        }
+    }
+}
+```
+
+2. Add the dependency
+```groovy
+    implementation 'com.vinsce.ciotl:base:1.0.0-SNAPSHOT'
+    implementation 'com.vinsce.ciotl:mqtt-exporter:1.0.0-SNAPSHOT'
+```
 
 ## Note
 This library is not ready for production use and does not care about permissions or sensors availability. The application that uses the library must take care of it.
