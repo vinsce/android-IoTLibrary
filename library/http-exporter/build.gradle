@@ -1,0 +1,60 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "30.0.1"
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0.0-SNAPSHOT"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    api project(":library:base")
+
+    api 'com.android.volley:volley:1.1.1'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            mqttExporterRelease(MavenPublication) {
+                from components.release
+
+                groupId 'com.vinsce.ciotl'
+                artifactId project.name
+                version android.defaultConfig.versionName
+            }
+        }
+
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/vinsce/android-IoTLibrary")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}

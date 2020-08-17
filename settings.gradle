@@ -1,3 +1,4 @@
+include ':library:http-exporter'
 include ':library:mqtt-exporter'
 include ':library:base'
 include ':sample'

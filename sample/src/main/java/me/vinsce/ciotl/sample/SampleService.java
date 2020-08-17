@@ -8,6 +8,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.android.volley.Request;
+
 import me.vinsce.ciotl.Pipeline;
 import me.vinsce.ciotl.collectors.AccelerometerCollector;
 import me.vinsce.ciotl.collectors.BatteryCollector;
@@ -17,6 +19,8 @@ import me.vinsce.ciotl.encoders.JsonByteEncoder;
 import me.vinsce.ciotl.encoders.JsonEncoder;
 import me.vinsce.ciotl.exporters.LogExporter;
 import me.vinsce.ciotl.exporters.SocketExporter;
+import me.vinsce.ciotl.http.exporters.HttpExporter;
+import me.vinsce.ciotl.mqtt.exporters.MqttExporter;
 
 public class SampleService extends Service {
 
@@ -35,14 +39,14 @@ public class SampleService extends Service {
         pipeline.addCollector(gpsDataCollector);
         pipeline.addCollector(new LightCollector(this, 5000));
         pipeline.addCollector(new BatteryCollector(this));
-        pipeline.addExporter(new LogExporter(new JsonEncoder()));
+        pipeline.addExporter(new MqttExporter(new JsonByteEncoder(), this, "tcp://10.0.2.2:1883", "test_client_1", "test_client"));
 
-        // pipeline.addExporter(new MqttExporter(new JsonByteEncoder(), this, "tcp://192.168.0.104:1883", "test_client_1", "test_client"));
-
-        SocketExporter socketExporter = new SocketExporter(new JsonByteEncoder(), "10.0.2.2", 5003);
+        SocketExporter socketExporter = new SocketExporter(new JsonByteEncoder(), 5003);
         socketExporter.setUseGenericSamples(true);
         socketExporter.setEndSequence("\n".getBytes());
-        pipeline.addExporter(socketExporter);
+        pipeline.addExporters(socketExporter, new LogExporter(new JsonEncoder()));
+
+        pipeline.addExporter(new HttpExporter(new JsonEncoder(), Request.Method.GET, "http://10.0.2.2:5003"));
     }
 
     private void startPipeline() {

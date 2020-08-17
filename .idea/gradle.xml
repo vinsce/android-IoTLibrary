@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/library" />
             <option value="$PROJECT_DIR$/library/base" />
+            <option value="$PROJECT_DIR$/library/http-exporter" />
             <option value="$PROJECT_DIR$/library/mqtt-exporter" />
             <option value="$PROJECT_DIR$/sample" />
           </set>

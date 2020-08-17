@@ -29,6 +29,7 @@ An [exporter](library/base/src/main/java/me/vinsce/ciotl/exporters/Exporter.java
 - [LogExporter](library/base/src/main/java/me/vinsce/ciotl/exporters/LogExporter.java): encodes the sample to String and writers it to Logcat
 - [SocketExporter](library/base/src/main/java/me/vinsce/ciotl/exporters/SocketExporter.java): encodes the sample to byte[] writes it to a TCP Socket
 - [MqttExporter](library/mqtt-exporter/src/main/java/me/vinsce/ciotl/mqtt/exporters/MqttExporter.java): encodes the sample to byte[] and sends it to an MQTT topic using the [Eclipse Paho library](https://github.com/eclipse/paho.mqtt.android)
+- [HttpExporter](library/http-exporter/src/main/java/me/vinsce/ciotl/http/exporters/HttpExporter.java): encodes the sample to String and sends it to an HTTP endpoint using the Volley library
 
 ##### Using built-in exporters
 ```java
@@ -108,6 +109,7 @@ repositories {
 ```groovy
     implementation 'com.vinsce.ciotl:base:1.0.0-SNAPSHOT'
     implementation 'com.vinsce.ciotl:mqtt-exporter:1.0.0-SNAPSHOT'
+    implementation 'com.vinsce.ciotl:http-exporter:1.0.0-SNAPSHOT'
 ```
 
 ## Note
