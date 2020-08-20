@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import me.vinsce.ciotl.encoders.JsonEncoder;
 import me.vinsce.ciotl.exporters.AbstractExporter;
+import me.vinsce.ciotl.exporters.configurations.ExporterConfiguration;
 
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
             SampleService.SampleServiceBinder binder = (SampleService.SampleServiceBinder) service;
 
-            AbstractExporter<String> logViewExporter = new AbstractExporter<String>(new JsonEncoder()) {
+            AbstractExporter<ExporterConfiguration, String> logViewExporter = new AbstractExporter<ExporterConfiguration, String>(new JsonEncoder(), null) {
                 @Override
                 public void close() {}
 

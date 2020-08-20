@@ -2,17 +2,19 @@ package me.vinsce.ciotl.collectors;
 
 import java.io.Closeable;
 
+import me.vinsce.ciotl.collectors.configurations.CollectorConfiguration;
 import me.vinsce.ciotl.model.samples.Sample;
 import me.vinsce.ciotl.model.sensors.Data;
 
 /**
  * Base interface for data collectors.
  *
+ * @param <C> type of collector configuration and parameters
  * @param <S> Type of sample created
  * @param <T> Type of data collected
  * @since 1.0.0
  */
-public interface Collector<S extends Sample<T>, T extends Data> extends Closeable {
+public interface Collector<C extends CollectorConfiguration, S extends Sample<T>, T extends Data> extends Closeable {
     /**
      * Returns true if the collector source (eg. sensor) is available and usable in the device.
      * False otherwise

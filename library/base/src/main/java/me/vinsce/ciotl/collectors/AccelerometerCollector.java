@@ -5,6 +5,7 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
+import me.vinsce.ciotl.collectors.configurations.AccelerometerCollectorConfiguration;
 import me.vinsce.ciotl.model.samples.AccelerometerSample;
 import me.vinsce.ciotl.model.sensors.AccelerometerData;
 
@@ -14,7 +15,7 @@ import me.vinsce.ciotl.model.sensors.AccelerometerData;
  *
  * @since 1.0.0
  */
-public class AccelerometerCollector extends AndroidSensorAbstractCollector<AccelerometerSample, AccelerometerData> {
+public class AccelerometerCollector extends AndroidSensorAbstractCollector<AccelerometerCollectorConfiguration, AccelerometerSample, AccelerometerData> {
 
     /**
      * Create a new AccelerometerCollector using the given sampling period
@@ -23,7 +24,7 @@ public class AccelerometerCollector extends AndroidSensorAbstractCollector<Accel
      * @param samplingPeriod sensor sampling period, in ms
      */
     public AccelerometerCollector(Context context, int samplingPeriod) {
-        super(context, Sensor.TYPE_ACCELEROMETER, samplingPeriod, samplingPeriod);
+        super(context, new AccelerometerCollectorConfiguration(samplingPeriod));
     }
 
     /**
@@ -34,7 +35,7 @@ public class AccelerometerCollector extends AndroidSensorAbstractCollector<Accel
      * @param maxAllowedSamplingPeriod maximum allowed sensor sampling period, in ms
      */
     public AccelerometerCollector(Context context, int samplingPeriod, int maxAllowedSamplingPeriod) {
-        super(context, Sensor.TYPE_ACCELEROMETER, samplingPeriod, maxAllowedSamplingPeriod);
+        super(context, new AccelerometerCollectorConfiguration(samplingPeriod, maxAllowedSamplingPeriod));
     }
 
     /**
@@ -45,8 +46,19 @@ public class AccelerometerCollector extends AndroidSensorAbstractCollector<Accel
      * @param maxAllowedSamplingPeriod maximum allowed sensor sampling period, in ms
      */
     public AccelerometerCollector(Context context, int accelerometerType, int samplingPeriod, int maxAllowedSamplingPeriod) {
-        super(context, accelerometerType, samplingPeriod, maxAllowedSamplingPeriod);
+        super(context, new AccelerometerCollectorConfiguration(accelerometerType, samplingPeriod, maxAllowedSamplingPeriod));
         checkType(accelerometerType, Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_LINEAR_ACCELERATION);
+    }
+
+    /**
+     * Create a new AccelerometerCollector using the given sampling period and max allowed sampling period
+     *
+     * @param context       Context used to access system sensors
+     * @param configuration collector configuration
+     */
+    public AccelerometerCollector(Context context, AccelerometerCollectorConfiguration configuration) {
+        super(context, configuration);
+        checkType(configuration.getSensorType(), Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_LINEAR_ACCELERATION);
     }
 
     @Override

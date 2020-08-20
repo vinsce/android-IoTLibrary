@@ -107,9 +107,9 @@ repositories {
 
 2. Add the dependency
 ```groovy
-    implementation 'com.vinsce.ciotl:base:1.0.0-SNAPSHOT'
-    implementation 'com.vinsce.ciotl:mqtt-exporter:1.0.0-SNAPSHOT'
-    implementation 'com.vinsce.ciotl:http-exporter:1.0.0-SNAPSHOT'
+implementation 'com.vinsce.ciotl:base:1.0.0-SNAPSHOT'
+implementation 'com.vinsce.ciotl:mqtt-exporter:1.0.0-SNAPSHOT'
+implementation 'com.vinsce.ciotl:http-exporter:1.0.0-SNAPSHOT'
 ```
 
 ## Note

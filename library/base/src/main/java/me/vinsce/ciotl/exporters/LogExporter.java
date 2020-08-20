@@ -3,17 +3,16 @@ package me.vinsce.ciotl.exporters;
 import android.util.Log;
 
 import me.vinsce.ciotl.encoders.Encoder;
+import me.vinsce.ciotl.exporters.configurations.LogExporterConfiguration;
 
 /**
  * An implementation of Exporter for debugging.
  * Receives an encoded samples and logs it in Logcat
- * with the specified {@link #tag} and {@link #level}
+ * with the specified {@link #configuration#tag} and {@link #configuration#level}
  *
  * @since 1.0.0
  */
-public class LogExporter extends AbstractExporter<String> {
-    private final String tag;
-    private final int level;
+public class LogExporter extends AbstractExporter<LogExporterConfiguration, String> {
 
     /**
      * Create a new LogExporter with the default log tag (class name) and level (debug)
@@ -22,7 +21,7 @@ public class LogExporter extends AbstractExporter<String> {
      * @param encoder the encoder used to encode values before export (eg. {@link me.vinsce.ciotl.encoders.JsonEncoder})
      */
     public LogExporter(Encoder<String> encoder) {
-        this(encoder, LogExporter.class.getSimpleName(), Log.DEBUG);
+        this(encoder, new LogExporterConfiguration());
     }
 
     /**
@@ -33,31 +32,39 @@ public class LogExporter extends AbstractExporter<String> {
      * @param level   Log level used for the export
      */
     public LogExporter(Encoder<String> encoder, String tag, int level) {
-        super(encoder);
-        this.tag = tag;
-        this.level = level;
+        this(encoder, new LogExporterConfiguration(tag, level));
+    }
+
+    /**
+     * Create a new LogExporter with the specified encoder and configuration
+     *
+     * @param encoder       the encoder used to encode values before export (eg. {@link me.vinsce.ciotl.encoders.JsonEncoder})
+     * @param configuration the encoder configuration
+     */
+    public LogExporter(Encoder<String> encoder, LogExporterConfiguration configuration) {
+        super(encoder, configuration);
     }
 
     @Override
     public void exportEncoded(String encodedSample) {
-        switch (level) {
+        switch (configuration.getLevel()) {
             case Log.VERBOSE:
-                Log.v(tag, encodedSample);
+                Log.v(configuration.getTag(), encodedSample);
                 break;
             case Log.DEBUG:
-                Log.d(tag, encodedSample);
+                Log.d(configuration.getTag(), encodedSample);
                 break;
             case Log.INFO:
-                Log.i(tag, encodedSample);
+                Log.i(configuration.getTag(), encodedSample);
                 break;
             case Log.WARN:
-                Log.w(tag, encodedSample);
+                Log.w(configuration.getTag(), encodedSample);
                 break;
             case Log.ERROR:
-                Log.e(tag, encodedSample);
+                Log.e(configuration.getTag(), encodedSample);
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Invalid log level %d", level));
+                throw new IllegalArgumentException(String.format("Invalid log level %d", configuration.getLevel()));
         }
     }
 

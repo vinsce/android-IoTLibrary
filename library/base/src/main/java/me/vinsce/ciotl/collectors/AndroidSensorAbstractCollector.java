@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 
 import java.util.Arrays;
 
+import me.vinsce.ciotl.collectors.configurations.AndroidSensorCollectorConfiguration;
 import me.vinsce.ciotl.exceptions.InitializationException;
 import me.vinsce.ciotl.model.samples.Sample;
 import me.vinsce.ciotl.model.sensors.Data;
@@ -18,7 +19,7 @@ import me.vinsce.ciotl.model.sensors.Data;
  *
  * @since 1.0.0
  */
-public abstract class AndroidSensorAbstractCollector<S extends Sample<T>, T extends Data> extends AbstractCollector<S, T> implements SensorEventListener {
+public abstract class AndroidSensorAbstractCollector<C extends AndroidSensorCollectorConfiguration, S extends Sample<T>, T extends Data> extends AbstractCollector<C, S, T> implements SensorEventListener {
     private static final int MS_TO_US_CONVERSION_FACTOR = 1000;
 
     private boolean initialized;
@@ -26,24 +27,14 @@ public abstract class AndroidSensorAbstractCollector<S extends Sample<T>, T exte
     private SensorManager sensorManager;
     private Sensor sensor;
 
-    protected int sensorType;
-
     private long lastNotificationTs;
 
-    protected final int samplingPeriod; // in milliseconds
-    protected final int maxAllowedSamplingPeriod; // in milliseconds
-
     /**
-     * @param context                   Context used to access system sensors
-     * @param sensorType                type of sensor. A constant from the {@link Sensor} class
-     * @param samplingPeriod            the sensor sampling period, in ms
-     * @param maxAllowedSamplingPeriod, the maximum allowed sensor sampling period, in ms
+     * @param context       Context used to access system sensors
+     * @param configuration Collector configuration
      */
-    public AndroidSensorAbstractCollector(Context context, int sensorType, int samplingPeriod, int maxAllowedSamplingPeriod) {
-        super(context);
-        this.sensorType = sensorType;
-        this.samplingPeriod = samplingPeriod;
-        this.maxAllowedSamplingPeriod = maxAllowedSamplingPeriod;
+    public AndroidSensorAbstractCollector(Context context, C configuration) {
+        super(context, configuration);
     }
 
 
@@ -53,7 +44,7 @@ public abstract class AndroidSensorAbstractCollector<S extends Sample<T>, T exte
             sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 
         if (sensor == null)
-            sensor = sensorManager.getDefaultSensor(sensorType);
+            sensor = sensorManager.getDefaultSensor(configuration.getSensorType());
 
         this.initialized = true;
     }
@@ -66,20 +57,20 @@ public abstract class AndroidSensorAbstractCollector<S extends Sample<T>, T exte
     @Override
     public boolean isSourceAvailable() {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        sensor = sensorManager.getDefaultSensor(sensorType);
+        sensor = sensorManager.getDefaultSensor(configuration.getSensorType());
         return sensor != null;
     }
 
     @Override
     public void start() {
         if (!isSourceAvailable())
-            throw new RuntimeException(String.format("Sensor of type %d not available", sensorType));
+            throw new RuntimeException(String.format("Sensor of type %d not available", configuration.getSensorType()));
         if (!isInitialized())
             initialize();
         if (!isInitialized())
             throw new RuntimeException("Unable to initialize sensor collector");
 
-        sensorManager.registerListener(this, sensor, samplingPeriod * MS_TO_US_CONVERSION_FACTOR, SHARED_HANDLER);
+        sensorManager.registerListener(this, sensor, configuration.getSamplingPeriod() * MS_TO_US_CONVERSION_FACTOR, SHARED_HANDLER);
     }
 
     @Override
@@ -88,11 +79,10 @@ public abstract class AndroidSensorAbstractCollector<S extends Sample<T>, T exte
             sensorManager.unregisterListener(this);
     }
 
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         long now = System.currentTimeMillis();
-        if (now - lastNotificationTs >= maxAllowedSamplingPeriod) {
+        if (now - lastNotificationTs >= configuration.getMaxAllowedSamplingPeriod()) {
             S sample = processEvent(event);
             notifyListeners(sample);
             lastNotificationTs = now;

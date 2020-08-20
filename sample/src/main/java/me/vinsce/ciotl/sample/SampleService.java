@@ -43,7 +43,7 @@ public class SampleService extends Service {
 
         SocketExporter socketExporter = new SocketExporter(new JsonByteEncoder(), 5003);
         socketExporter.setUseGenericSamples(true);
-        socketExporter.setEndSequence("\n".getBytes());
+        socketExporter.getConfiguration().setEndSequence("\n".getBytes());
         pipeline.addExporters(socketExporter, new LogExporter(new JsonEncoder()));
 
         pipeline.addExporter(new HttpExporter(new JsonEncoder(), Request.Method.GET, "http://10.0.2.2:5003"));

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Setter;
+import me.vinsce.ciotl.collectors.configurations.CollectorConfiguration;
 import me.vinsce.ciotl.helpers.id.DeviceIdProvider;
 import me.vinsce.ciotl.helpers.id.GeneratedUUIDProvider;
 import me.vinsce.ciotl.model.samples.Sample;
@@ -18,11 +19,12 @@ import me.vinsce.ciotl.model.sensors.Data;
 /**
  * Base abstract {@link Collector} with a basic implementation of listeners management.
  *
+ * @param <C> Type of collector configuration
  * @param <S> Type of sample created
  * @param <T> Type of data collected
  * @since 1.0.0
  */
-public abstract class AbstractCollector<S extends Sample<T>, T extends Data> implements Collector<S, T> {
+public abstract class AbstractCollector<C extends CollectorConfiguration, S extends Sample<T>, T extends Data> implements Collector<C, S, T> {
     /**
      * A shared Handler that can be used by subclasses
      */
@@ -30,6 +32,8 @@ public abstract class AbstractCollector<S extends Sample<T>, T extends Data> imp
 
     protected final String LOG_TAG = getClass().getSimpleName();
     protected Set<CollectorListener<Sample<T>>> listeners = new HashSet<>();
+
+    protected C configuration;
 
     static {
         final HandlerThread handlerThread = new HandlerThread("SharedCollectorHandlerThread", Thread.MAX_PRIORITY);
@@ -42,8 +46,9 @@ public abstract class AbstractCollector<S extends Sample<T>, T extends Data> imp
     @Setter
     protected DeviceIdProvider deviceIdProvider;
 
-    public AbstractCollector(@NonNull Context context) {
+    public AbstractCollector(@NonNull Context context, C configuration) {
         this.context = context;
+        this.configuration = configuration;
         deviceIdProvider = new GeneratedUUIDProvider(context);
     }
 

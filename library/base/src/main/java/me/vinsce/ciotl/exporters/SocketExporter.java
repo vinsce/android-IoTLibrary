@@ -9,28 +9,18 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import lombok.Setter;
 import me.vinsce.ciotl.encoders.Encoder;
 import me.vinsce.ciotl.exceptions.InitializationException;
+import me.vinsce.ciotl.exporters.configurations.SocketExporterConfiguration;
 
 /**
  * An implementation of Exporter that send encoded samples on a socket.
  *
  * @since 1.0.0
  */
-public class SocketExporter extends AbstractExporter<byte[]> {
+public class SocketExporter extends AbstractExporter<SocketExporterConfiguration, byte[]> {
     private static final String LOG_TAG = SocketExporter.class.getSimpleName();
 
-    private final int port;
-    private final String host;
-
-    @Setter
-    private byte[] startSequence;
-    @Setter
-    private byte[] endSequence;
-
-    @Setter
-    private int timeout = 5000;
 
     private Socket socket;
     private OutputStream outputStream;
@@ -43,9 +33,7 @@ public class SocketExporter extends AbstractExporter<byte[]> {
      * @param port    server port
      */
     public SocketExporter(Encoder<byte[]> encoder, String host, int port) {
-        super(encoder);
-        this.port = port;
-        this.host = host;
+        this(encoder, new SocketExporterConfiguration(host, port));
     }
 
     /**
@@ -56,21 +44,29 @@ public class SocketExporter extends AbstractExporter<byte[]> {
      * @param port    port to bind to
      */
     public SocketExporter(Encoder<byte[]> encoder, int port) {
-        super(encoder);
-        this.port = port;
-        this.host = null;
+        this(encoder, new SocketExporterConfiguration(null, port));
+    }
+
+    /**
+     * Create a new SocketExporter with the specified encoder and configuration
+     *
+     * @param encoder       the encoder used to encode values before export (eg. {@link me.vinsce.ciotl.encoders.JsonEncoder})
+     * @param configuration the encoder configuration
+     */
+    public SocketExporter(Encoder<byte[]> encoder, SocketExporterConfiguration configuration) {
+        super(encoder, configuration);
     }
 
     @Override
     public void exportEncoded(byte[] encodedSample) {
         try {
-            if (startSequence != null && startSequence.length > 0)
-                outputStream.write(startSequence);
+            if (configuration.getStartSequence() != null && configuration.getStartSequence().length > 0)
+                outputStream.write(configuration.getStartSequence());
 
             outputStream.write(encodedSample);
 
-            if (endSequence != null && endSequence.length > 0)
-                outputStream.write(endSequence);
+            if (configuration.getEndSequence() != null && configuration.getEndSequence().length > 0)
+                outputStream.write(configuration.getEndSequence());
 
             outputStream.flush();
         } catch (IOException e) {
@@ -82,11 +78,11 @@ public class SocketExporter extends AbstractExporter<byte[]> {
     public void initialize() {
         Log.i(LOG_TAG, "Initializing SocketExporter");
         try {
-            if (host == null) {
+            if (configuration.getHost() == null) {
                 Log.d(LOG_TAG, "Starting SocketExporter in server mode");
 
                 // server mode
-                final ServerSocket ss = new ServerSocket(port);
+                final ServerSocket ss = new ServerSocket(configuration.getPort());
                 Log.d(LOG_TAG, "Awaiting client connection to " + ss.getLocalSocketAddress());
 
                 socket = ss.accept();
@@ -95,7 +91,7 @@ public class SocketExporter extends AbstractExporter<byte[]> {
                 Log.d(LOG_TAG, "Starting SocketExporter in client mode");
                 // client mode
                 socket = new Socket();
-                socket.connect(new InetSocketAddress(host, port), timeout);
+                socket.connect(new InetSocketAddress(configuration.getHost(), configuration.getPort()), configuration.getTimeout());
             }
             outputStream = socket.getOutputStream();
         } catch (Exception e) {

@@ -17,31 +17,37 @@ import java.io.IOException;
 
 import me.vinsce.ciotl.encoders.Encoder;
 import me.vinsce.ciotl.exporters.AbstractExporter;
+import me.vinsce.ciotl.mqtt.exporters.configurations.MqttExporterConfiguration;
 
 /**
  * An exporter that writes data to an MQTT topic as byte array
  */
-public class MqttExporter extends AbstractExporter<byte[]> {
+public class MqttExporter extends AbstractExporter<MqttExporterConfiguration, byte[]> {
     private static final String LOG_TAG = MqttExporter.class.getSimpleName();
 
     private final Context context;
 
     private MqttAndroidClient mqttClient;
-    private final String serverUri;
-    private final String clientId;
-    private final String topic;
 
     public MqttExporter(Encoder<byte[]> encoder, Context context, String serverUri, String clientId, String topic) {
-        super(encoder);
+        this(encoder, context, new MqttExporterConfiguration(serverUri, clientId, topic));
+    }
+
+    /**
+     * Create a new MqttExporter with the specified encoder and configuration
+     *
+     * @param encoder       the encoder used to encode values before export (eg. {@link me.vinsce.ciotl.encoders.JsonEncoder})
+     * @param context       Android context
+     * @param configuration the encoder configuration
+     */
+    public MqttExporter(Encoder<byte[]> encoder, Context context, MqttExporterConfiguration configuration) {
+        super(encoder, configuration);
         this.context = context;
-        this.serverUri = serverUri;
-        this.clientId = clientId;
-        this.topic = topic;
     }
 
     @Override
     public void initialize() {
-        mqttClient = new MqttAndroidClient(context, serverUri, clientId);
+        mqttClient = new MqttAndroidClient(context, configuration.getServerUri(), configuration.getClientId());
         mqttClient.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
@@ -73,7 +79,7 @@ public class MqttExporter extends AbstractExporter<byte[]> {
         mqttConnectOptions.setCleanSession(false);
 
         try {
-            Log.i(LOG_TAG, "Connecting to " + serverUri);
+            Log.i(LOG_TAG, "Connecting to " + configuration.getServerUri());
             mqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -87,7 +93,7 @@ public class MqttExporter extends AbstractExporter<byte[]> {
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.e(LOG_TAG, "Failed to connect to: " + serverUri, exception);
+                    Log.e(LOG_TAG, "Failed to connect to: " + configuration.getServerUri(), exception);
                     exception.printStackTrace();
                 }
             });
@@ -113,8 +119,8 @@ public class MqttExporter extends AbstractExporter<byte[]> {
             final MqttMessage message = new MqttMessage();
             message.setPayload(encodedSample);
 
-            Log.v(LOG_TAG, String.format("Publishing message to topic %s", topic));
-            mqttClient.publish(topic, message);
+            Log.v(LOG_TAG, String.format("Publishing message to topic %s", configuration.getTopic()));
+            mqttClient.publish(configuration.getTopic(), message);
 
             if (!mqttClient.isConnected()) {
                 Log.i(LOG_TAG, "Message published but MQTT client not connected");

@@ -2,9 +2,9 @@ package me.vinsce.ciotl.collectors;
 
 
 import android.content.Context;
-import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
+import me.vinsce.ciotl.collectors.configurations.AmbientTemperatureCollectorConfiguration;
 import me.vinsce.ciotl.model.samples.AmbientTemperatureSample;
 import me.vinsce.ciotl.model.sensors.AmbientTemperatureData;
 
@@ -13,17 +13,7 @@ import me.vinsce.ciotl.model.sensors.AmbientTemperatureData;
  *
  * @since 1.0.0
  */
-public class AmbientTemperatureCollector extends AndroidSensorAbstractCollector<AmbientTemperatureSample, AmbientTemperatureData> {
-
-    /**
-     * Create a new AmbientTemperatureCollector using the given sampling period
-     *
-     * @param context        Context used to access system sensors
-     * @param samplingPeriod sensor sampling period, in ms
-     */
-    public AmbientTemperatureCollector(Context context, int samplingPeriod) {
-        super(context, Sensor.TYPE_AMBIENT_TEMPERATURE, samplingPeriod, samplingPeriod);
-    }
+public class AmbientTemperatureCollector extends AndroidSensorAbstractCollector<AmbientTemperatureCollectorConfiguration, AmbientTemperatureSample, AmbientTemperatureData> {
 
     /**
      * Create a new AmbientTemperatureCollector using the given sampling period and max allowed sampling period
@@ -33,19 +23,21 @@ public class AmbientTemperatureCollector extends AndroidSensorAbstractCollector<
      * @param maxAllowedSamplingPeriod maximum allowed sensor sampling period, in ms
      */
     public AmbientTemperatureCollector(Context context, int samplingPeriod, int maxAllowedSamplingPeriod) {
-        super(context, Sensor.TYPE_AMBIENT_TEMPERATURE, samplingPeriod, maxAllowedSamplingPeriod);
+        this(context, new AmbientTemperatureCollectorConfiguration(samplingPeriod, maxAllowedSamplingPeriod));
     }
 
     /**
-     * Create a new AmbientTemperatureCollector using the given sampling period and max allowed sampling period
+     * Create a new AmbientTemperatureCollector using the given sampling period
      *
-     * @param context                  Context used to access system sensors
-     * @param samplingPeriod           sensor sampling period, in ms
-     * @param maxAllowedSamplingPeriod maximum allowed sensor sampling period, in ms
+     * @param context        Context used to access system sensors
+     * @param samplingPeriod sensor sampling period, in ms
      */
-    public AmbientTemperatureCollector(Context context, int accelerometerType, int samplingPeriod, int maxAllowedSamplingPeriod) {
-        super(context, accelerometerType, samplingPeriod, maxAllowedSamplingPeriod);
-        checkType(accelerometerType, Sensor.TYPE_AMBIENT_TEMPERATURE);
+    public AmbientTemperatureCollector(Context context, int samplingPeriod) {
+        this(context, new AmbientTemperatureCollectorConfiguration(samplingPeriod));
+    }
+
+    public AmbientTemperatureCollector(Context context, AmbientTemperatureCollectorConfiguration configuration) {
+        super(context, configuration);
     }
 
     @Override

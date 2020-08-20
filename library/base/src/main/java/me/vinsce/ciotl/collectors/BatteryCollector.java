@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import me.vinsce.ciotl.collectors.configurations.BatteryCollectorConfiguration;
 import me.vinsce.ciotl.model.samples.BatterySample;
 import me.vinsce.ciotl.model.sensors.BatteryData;
 
@@ -17,10 +18,8 @@ import me.vinsce.ciotl.model.sensors.BatteryData;
  *
  * @since 1.0.0
  */
-public class BatteryCollector extends AbstractCollector<BatterySample, BatteryData> {
-
+public class BatteryCollector extends AbstractCollector<BatteryCollectorConfiguration, BatterySample, BatteryData> {
     private boolean initialized;
-    private long samplingPeriod;
 
     private IntentFilter batteryIntentFilter;
 
@@ -31,8 +30,11 @@ public class BatteryCollector extends AbstractCollector<BatterySample, BatteryDa
     }
 
     public BatteryCollector(@NonNull Context context, long samplingPeriod) {
-        super(context);
-        this.samplingPeriod = samplingPeriod;
+        this(context, new BatteryCollectorConfiguration((samplingPeriod)));
+    }
+
+    public BatteryCollector(@NonNull Context context, BatteryCollectorConfiguration configuration) {
+        super(context, configuration);
     }
 
     @Override
@@ -40,7 +42,6 @@ public class BatteryCollector extends AbstractCollector<BatterySample, BatteryDa
         batteryIntentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         this.initialized = true;
     }
-
 
     @Override
     public boolean isSourceAvailable() {
@@ -95,7 +96,7 @@ public class BatteryCollector extends AbstractCollector<BatterySample, BatteryDa
             else
                 Log.w(LOG_TAG, "Received null battery status intent extras");
         }
-        SHARED_HANDLER.postDelayed(this::getBatteryData, samplingPeriod);
+        SHARED_HANDLER.postDelayed(this::getBatteryData, configuration.getSamplingPeriod());
     }
 
     @Override

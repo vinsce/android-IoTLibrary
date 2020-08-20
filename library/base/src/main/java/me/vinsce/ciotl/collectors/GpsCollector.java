@@ -13,6 +13,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import me.vinsce.ciotl.collectors.configurations.GpsCollectorConfiguration;
 import me.vinsce.ciotl.model.samples.GpsSample;
 import me.vinsce.ciotl.model.sensors.GpsData;
 
@@ -21,14 +22,10 @@ import me.vinsce.ciotl.model.sensors.GpsData;
  *
  * @since 1.0.0
  */
-public class GpsCollector extends AbstractCollector<GpsSample, GpsData> {
-
+public class GpsCollector extends AbstractCollector<GpsCollectorConfiguration, GpsSample, GpsData> {
     private FusedLocationProviderClient locationProvider;
-    private LocationRequest locationRequest;
     private LocationCallback locationCallback;
 
-    private final long updateInterval;
-    private final long fastestUpdateInterval;
 
     private boolean initialized;
 
@@ -50,31 +47,23 @@ public class GpsCollector extends AbstractCollector<GpsSample, GpsData> {
      * @param fastestUpdateInterval in ms, the fastest location update interval
      */
     public GpsCollector(@NonNull Context context, long updateInterval, long fastestUpdateInterval) {
-        super(context);
-        this.updateInterval = updateInterval;
-        this.fastestUpdateInterval = fastestUpdateInterval;
+        this(context, new GpsCollectorConfiguration(updateInterval, fastestUpdateInterval));
     }
 
     /**
      * Create a new GpsCollector with the specified {@link LocationRequest}
      */
     public GpsCollector(@NonNull Context context, @NonNull LocationRequest locationRequest) {
-        super(context);
-        this.locationRequest = locationRequest;
-        this.updateInterval = locationRequest.getInterval();
-        this.fastestUpdateInterval = locationRequest.getFastestInterval();
+        this(context, new GpsCollectorConfiguration(locationRequest));
+    }
+
+    public GpsCollector(@NonNull Context context, GpsCollectorConfiguration configuration) {
+        super(context, configuration);
     }
 
     @Override
     public void initialize() {
         locationProvider = LocationServices.getFusedLocationProviderClient(context);
-
-        if (locationRequest == null)
-            locationRequest = new LocationRequest()
-                    .setInterval(updateInterval)
-                    .setFastestInterval(fastestUpdateInterval)
-                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
         if (this.locationCallback == null)
             this.locationCallback = new LocationCallback() {
                 @Override
@@ -119,7 +108,7 @@ public class GpsCollector extends AbstractCollector<GpsSample, GpsData> {
 
         Log.i(LOG_TAG, "Requesting location updates");
         try {
-            locationProvider.requestLocationUpdates(locationRequest, locationCallback, SHARED_HANDLER.getLooper());
+            locationProvider.requestLocationUpdates(configuration.getLocationRequest(), locationCallback, SHARED_HANDLER.getLooper());
         } catch (SecurityException unlikely) {
             Log.e(LOG_TAG, "Unable to request updates. " + unlikely);
         }

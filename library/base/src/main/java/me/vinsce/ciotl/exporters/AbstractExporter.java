@@ -7,6 +7,7 @@ import lombok.Setter;
 import me.vinsce.ciotl.encoders.Encoder;
 import me.vinsce.ciotl.exceptions.InitializationException;
 import me.vinsce.ciotl.exceptions.NotInitializedException;
+import me.vinsce.ciotl.exporters.configurations.ExporterConfiguration;
 import me.vinsce.ciotl.model.samples.Sample;
 import me.vinsce.ciotl.model.sensors.Data;
 
@@ -17,9 +18,12 @@ import me.vinsce.ciotl.model.sensors.Data;
  * @param <I> type of encoded value, ready to be exported
  * @since 1.0.0
  */
-public abstract class AbstractExporter<I> implements Exporter {
+public abstract class AbstractExporter<C extends ExporterConfiguration, I> implements Exporter<C> {
     protected Encoder<I> encoder;
     protected boolean initialized = false;
+
+    @Getter
+    protected final C configuration;
 
     @Getter
     @Setter
@@ -28,10 +32,12 @@ public abstract class AbstractExporter<I> implements Exporter {
     /**
      * Create a new Exporter with the specified Encoder
      *
-     * @param encoder the encoder used to encode samples before export
+     * @param encoder       the encoder used to encode samples before export
+     * @param configuration the exporter configuration
      */
-    public AbstractExporter(@NonNull Encoder<I> encoder) {
+    public AbstractExporter(@NonNull Encoder<I> encoder, C configuration) {
         this.encoder = encoder;
+        this.configuration = configuration;
     }
 
     @Override
